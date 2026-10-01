@@ -1,13 +1,13 @@
-# mini-watch 2일차 완성 코드
+# mini-watch 3일차 시작 코드
 
 일반 서비스는 로그인과 게시글 조회를, 감시 서비스는 요청 전달과 기록 저장·조회를 담당한다. 두 Flask 서버는 Windows의 로컬 환경에서 실행한다. PostgreSQL 서버 하나에 `general_db`와 `monitor_db`를 만든다.
 
-이 브랜치는 2일차 완성 코드와 초기 SQL을 담고 있다. `git clone`으로 소스와 Git 이력을 함께 받는다. PostgreSQL 데이터, 가상환경, 실제 `.env`는 따로 준비한다. 현재 수업 폴더가 정상이라면 그 폴더를 계속 사용한다.
+이 브랜치는 2일차에 완성한 코드와 초기 SQL을 담은 3일차 시작 자료다. `git clone`으로 소스와 Git 이력을 함께 받는다. PostgreSQL 데이터, 가상환경, 실제 `.env`는 따로 준비한다. 현재 수업 폴더가 정상이라면 그 폴더를 계속 사용한다.
 
 ## 폴더
 
 ```text
-mini-watch-day02-end/
+mini-watch-day03-start/
 ├─ .gitignore
 ├─ README.md
 ├─ general/
@@ -43,7 +43,7 @@ mini-watch-day02-end/
 
 Python과 PostgreSQL이 필요하다. pgAdmin은 PostgreSQL에 SQL을 실행할 때 사용하는 도구다. 새 DB에서 시작하는 경우에만 아래 초기 SQL을 순서대로 실행한다. 이미 수업을 진행한 DB는 다시 만들지 않는다.
 
-VS Code에서 방금 복제한 프로젝트 폴더를 연다. 교안의 명령대로 받았다면 `mini-watch-day02-end` 폴더다. `Ctrl+Shift+P`를 누르고 `Terminal: Select Default Profile`을 검색한 뒤 **Command Prompt(CMD, 명령 프롬프트)**를 선택한다. 기존 터미널은 자동으로 바뀌지 않으므로 이후 실습은 새로 연 CMD에서 진행한다.
+VS Code에서 방금 복제한 프로젝트 폴더를 연다. 교안의 명령대로 받았다면 `mini-watch-day03-start` 폴더다. `Ctrl+Shift+P`를 누르고 `Terminal: Select Default Profile`을 검색한 뒤 **Command Prompt(CMD, 명령 프롬프트)**를 선택한다. 기존 터미널은 자동으로 바뀌지 않으므로 이후 실습은 새로 연 CMD에서 진행한다.
 
 명령은 파일을 더블클릭하지 않고 CMD에 입력한다. 이번 자료는 서비스별 `venv` 폴더를 사용한다. 기존 `.venv` 폴더를 이름만 바꾸어 사용하지 말고, 아래 순서로 `venv`를 새로 만든다.
 
