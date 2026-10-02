@@ -1,15 +1,12 @@
-import os
-from flask import Flask, request, session
+import json
+import requests
+from flask import Flask, request
 from werkzeug.security import check_password_hash
 from db import connect_db
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
-app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
-app.config["SESSION_COOKIE_NAME"] = "mini_watch_session"
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-app.config["SESSION_COOKIE_SECURE"] = False
+MONITOR_URL = "http://127.0.0.1:5200/api/events"
 
 
 def find_post(post_id):
@@ -45,28 +42,34 @@ def login():
     if user is None or not check_password_hash(user["password_hash"], password):
         return {"error": "아이디 또는 비밀번호가 올바르지 않습니다."}, 401
 
-    session.clear()
-    session["user_id"] = user["id"]
     return {
         "message": "로그인 성공",
         "user": {"id": user["id"], "username": user["username"]},
     }
 
 
-@app.post("/auth/logout")
-def logout():
-    session.clear()
-    return {"message": "로그아웃 완료"}
-
-
 @app.get("/posts/<int:post_id>")
 def get_post(post_id):
-    if "user_id" not in session:
-        return {"error": "로그인이 필요합니다."}, 401
     post = find_post(post_id)
     if post is None:
         return {"error": "게시글을 찾을 수 없습니다."}, 404
     return post
+
+
+@app.after_request
+def record_request(response):
+    event = {
+        "method": request.method,
+        "path": request.path,
+        "status_code": response.status_code,
+    }
+    print(json.dumps(event, ensure_ascii=False), flush=True)
+    try:
+        result = requests.post(MONITOR_URL, json=event, timeout=0.5)
+        result.raise_for_status()
+    except requests.RequestException:
+        app.logger.warning("감시 서비스에 요청 기록을 보내지 못했습니다.")
+    return response
 
 
 if __name__ == "__main__":
