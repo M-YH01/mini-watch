@@ -34,3 +34,11 @@ input, textarea {
 .post-body {
     white-space: pre-wrap;
 }
+nav a {
+    margin-right: 12px;
+}
+
+.meta {
+    color: #777;
+    font-size: 0.9em;
+}

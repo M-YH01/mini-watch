@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>게시글 삭제 | mini-watch</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>게시글 삭제</h1>
+    <p>"{{ post.title }}" 글을 정말 삭제하시겠습니까?</p>
+    <form action="/board/{{ post.id }}/delete" method="post">
+        <button type="submit">삭제 확인</button>
+    </form>
+    <p><a href="/board/{{ post.id }}">취소</a></p>
+</body>
+</html>

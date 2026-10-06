@@ -1,20 +1,14 @@
-import json
-import requests
 from flask import Flask, request, render_template
 from werkzeug.security import check_password_hash
+
 from db import connect_db
+from request_logging import register_request_logging
+from routes.posts import bp as posts_bp
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
-MONITOR_URL = "http://127.0.0.1:5200/api/events"
-
-
-def find_post(post_id):
-    with connect_db() as conn:
-        return conn.execute(
-            "SELECT id, title, body FROM posts WHERE id = %s",
-            (post_id,),
-        ).fetchone()
+app.register_blueprint(posts_bp)
+register_request_logging(app)
 
 
 def find_user(username):
@@ -25,19 +19,9 @@ def find_user(username):
         ).fetchone()
 
 
-@app.get("/")
-def index():
-    with connect_db() as conn:
-        posts = conn.execute("SELECT id, title, body FROM posts ORDER BY id").fetchall()
-    return render_template("index.html", posts=posts)
-
-
-@app.get("/board/<int:post_id>")
-def post_detail(post_id):
-    post = find_post(post_id)
-    if post is None:
-        return render_template("error.html", message="게시글을 찾을 수 없습니다."), 404
-    return render_template("detail.html", post=post)
+@app.get("/login")
+def login_page():
+    return render_template("login.html")
 
 
 @app.post("/auth/login")
@@ -65,26 +49,14 @@ def login():
 
 @app.get("/posts/<int:post_id>")
 def get_post(post_id):
-    post = find_post(post_id)
+    with connect_db() as conn:
+        post = conn.execute(
+            "SELECT id, title, body FROM posts WHERE id = %s",
+            (post_id,),
+        ).fetchone()
     if post is None:
         return {"error": "게시글을 찾을 수 없습니다."}, 404
     return post
-
-
-@app.after_request
-def record_request(response):
-    event = {
-        "method": request.method,
-        "path": request.path,
-        "status_code": response.status_code,
-    }
-    print(json.dumps(event, ensure_ascii=False), flush=True)
-    try:
-        result = requests.post(MONITOR_URL, json=event, timeout=0.5)
-        result.raise_for_status()
-    except requests.RequestException:
-        app.logger.warning("감시 서비스에 요청 기록을 보내지 못했습니다.")
-    return response
 
 
 if __name__ == "__main__":

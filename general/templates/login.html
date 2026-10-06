@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>로그인 | mini-watch</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>로그인</h1>
+    <form id="login-form">
+        <p>
+            <label for="username">아이디</label>
+            <input id="username" name="username">
+        </p>
+        <p>
+            <label for="password">비밀번호</label>
+            <input id="password" name="password" type="password">
+        </p>
+        <button type="submit">로그인</button>
+    </form>
+    <p id="login-result"></p>
+    <p><a href="/">목록으로</a></p>
+    <script>
+        const form = document.getElementById("login-form");
+        const result = document.getElementById("login-result");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    result.textContent = data.message + " (" + data.user.username + "님)";
+                } else {
+                    result.textContent = data.error;
+                }
+            } catch (error) {
+                result.textContent = "서버와 통신할 수 없습니다.";
+            }
+        });
+    </script>
+</body>
+</html>

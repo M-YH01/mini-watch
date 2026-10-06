@@ -8,6 +8,10 @@
 <body>
     <h1>일반 서비스</h1>
     <h2>게시글 목록</h2>
+    <nav>
+        <a href="/board/new">새 글 작성</a>
+        <a href="/login">로그인</a>
+    </nav>
     {% if posts %}
     <ul>
         {% for post in posts %}
@@ -15,7 +19,7 @@
         {% endfor %}
     </ul>
     {% else %}
-    <p>아직 게시글이 없습니다.</p>
+    <p>등록된 게시글이 없습니다.</p>
     {% endif %}
 </body>
 </html>
