@@ -1,6 +1,6 @@
 import json
 import requests
-from flask import Flask, request
+from flask import Flask, request, render_template, redirect
 from werkzeug.security import check_password_hash
 from db import connect_db
 
@@ -23,6 +23,42 @@ def find_user(username):
             "SELECT id, username, password_hash FROM users WHERE username = %s",
             (username,),
         ).fetchone()
+
+
+@app.get("/")
+def index():
+    with connect_db() as conn:
+        posts = conn.execute("SELECT id, title, body FROM posts ORDER BY id").fetchall()
+    return render_template("index.html", posts=posts)
+
+
+@app.get("/board/<int:post_id>")
+def post_detail(post_id):
+    post = find_post(post_id)
+    if post is None:
+        return render_template("error.html", message="게시글을 찾을 수 없습니다."), 404
+    return render_template("detail.html", post=post)
+
+
+@app.route("/board/new", methods=["GET", "POST"])
+def new_post():
+    if request.method == "GET":
+        return render_template("new.html", title="", body="", error=None)
+
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    if not title or not body:
+        return render_template(
+            "new.html", title=title, body=body,
+            error="제목과 내용을 모두 입력해 주세요.",
+        ), 400
+
+    with connect_db() as conn:
+        post = conn.execute(
+            "INSERT INTO posts (title, body) VALUES (%s, %s) RETURNING id",
+            (title, body),
+        ).fetchone()
+    return redirect(f"/board/{post['id']}", code=303)
 
 
 @app.post("/auth/login")
